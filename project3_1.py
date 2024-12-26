@@ -5,10 +5,10 @@ from flask_cors import CORS
 import requests
 import json
 import geopandas as gpd
-from route.routes import recommend_bp
-from route.images import images_bp
-from route.mise12random import mise12random_bp
-from route.images_uploade import image_upload_bp
+from src.routes.routes import recommend_bp
+from src.routes.images import images_bp
+from src.routes.mise12random import mise12random_bp
+from src.routes.yolov5 import yolov5
 import traceback
 import pandas as pd
 
@@ -22,7 +22,7 @@ access_key = 'y+MUXWRZdywDBDs64HplB3XAbAYdvxWcQ54m88FRrpMBgZAm1tcqkUc8xkXrtl4eRg
 app.register_blueprint(recommend_bp, url_prefix='/api')
 app.register_blueprint(images_bp, url_prefix='/images')
 app.register_blueprint(mise12random_bp, url_prefix='/mise12random')
-app.register_blueprint(image_upload_bp, url_prefix='/img')  # 올바른 Blueprint 등록
+app.register_blueprint(yolov5, url_prefix='/img')
 
 @app.route('/api/random-data')
 def random_data():
@@ -152,15 +152,15 @@ def get_request_url1(current_latitude, current_longitude, clicked_latitude, clic
         print("Error:", response.status_code)
         return None
 
-class City(Resource):
-    def get(self):
-        kor = gpd.read_file('C:\\KYB\\Project\\2_WepProject\\3_React\\React_clone_test\\kyb_study\\server\\python\\seoul_EPSG5179.shp', encoding='utf-8')
-        kor.rename(columns={'nm': '시군구명'}, inplace=True)
-        kor_data = kor[['시군구명', 'geometry']]
-        kor_geojson = kor_data.set_crs("EPSG:4326", allow_override=True).to_json()
-        return jsonify(kor_geojson)
+# class City(Resource):
+#     def get(self):
+#         kor = gpd.read_file('C:\\KYB\\Project\\2_WepProject\\3_React\\React_clone_test\\kyb_study\\server\\python\\seoul_EPSG5179.shp', encoding='utf-8')
+#         kor.rename(columns={'nm': '시군구명'}, inplace=True)
+#         kor_data = kor[['시군구명', 'geometry']]
+#         kor_geojson = kor_data.set_crs("EPSG:4326", allow_override=True).to_json()
+#         return jsonify(kor_geojson)
 
-api.add_resource(City, '/city')
+# api.add_resource(City, '/city')
 
 if __name__ == '__main__':
     try:
