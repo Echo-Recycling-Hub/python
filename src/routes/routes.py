@@ -1,4 +1,4 @@
-# routes.py
+# scr/routes/routes.py
 import pandas as pd
 from flask import Blueprint, jsonify, request
 from sqlalchemy import create_engine
@@ -7,6 +7,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 from konlpy.tag import Okt
 from dotenv import load_dotenv
 import os
+
 
 load_dotenv()
 
@@ -20,8 +21,8 @@ DB_PORT = os.getenv('DB_PORT')
 DB_NAME = os.getenv('DB_NAME')
 
 # AWS RDB 연결(MariaDB)
-engine = f'mysql+pymysql://{DB_USER_NAME}:{DB_USER_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}'
-
+create_string = f'mysql+pymysql://{DB_USER_NAME}:{DB_USER_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}'
+engine=create_engine(create_string)
 # 데이터 가져오기
 query_zero = "SELECT id, info, hash_tags, name FROM zero"
 query_zero_re = "SELECT id, review, review2, review3, review4, review5, review6 FROM zero_re"

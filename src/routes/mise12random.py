@@ -14,12 +14,12 @@ import time
 import random
 import traceback
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from config.yolo_settings import STATION_PATH
 
 mise12random_bp = Blueprint('mise12random', __name__)
 
 # 측정소 정보 데이터 로드
-station_info_path = r'..\\..\\data\\station_info.csv'
-station_info = pd.read_csv(station_info_path)
+station_info = pd.read_csv(STATION_PATH)
 
 # API 호출 설정
 base_url = 'http://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty'
@@ -266,7 +266,7 @@ def find_top_7_days(pred_df):
 
 def generate_maps(predictions):
     map_paths = []
-    weather_dir = 'D:\\KYB\\Project\\2_WepProject\\3_React\\React_clone_test\\kyb_study\\server\\python\\weather'
+    weather_dir = 'C:\\Users\\Kang YeonBae\\Documents\\GitHub\\python\\weather'
 
     # 디렉토리가 존재하지 않으면 생성
     if not os.path.exists(weather_dir):
@@ -324,7 +324,7 @@ def predictions():
 @mise12random_bp.route('/api/map/<int:day>', methods=['GET'])
 def map(day):
     if 1 <= day <= 7:
-        map_path = f'D:\\KYB\\Project\\2_WepProject\\3_React\\React_clone_test\\kyb_study\\server\\python\\weather\\predicted_air_quality_map_{day}.html'
+        map_path = f'C:\\Users\\Kang YeonBae\\Documents\\GitHub\\python\\weather\\predicted_air_quality_map_{day}.html'
         print(f"Checking for map file: {map_path}")  # 로그 추가
         if os.path.exists(map_path):
             print(f"File found: {map_path}")  # 파일 존재 여부 로그

@@ -16,8 +16,8 @@ DB_PORT = os.getenv('DB_PORT')
 DB_NAME = os.getenv('DB_NAME')
 
 # SQLAlchemy 엔진 생성
-engine = f'mysql+pymysql://{DB_USER_NAME:{DB_USER_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}}'
-
+create_string = f'mysql+pymysql://{DB_USER_NAME}:{DB_USER_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}'
+engine=create_engine(create_string)
 
 @images_bp.route('/<int:index>', methods=['GET'])
 def get_image(index):

@@ -7,7 +7,6 @@ import json
 import geopandas as gpd
 from src.routes.routes import recommend_bp
 from src.routes.images import images_bp
-from src.routes.mise12random import mise12random_bp
 from src.routes.yolov5 import yolov5
 import traceback
 import pandas as pd
@@ -21,7 +20,6 @@ access_key = 'y+MUXWRZdywDBDs64HplB3XAbAYdvxWcQ54m88FRrpMBgZAm1tcqkUc8xkXrtl4eRg
 
 app.register_blueprint(recommend_bp, url_prefix='/api')
 app.register_blueprint(images_bp, url_prefix='/images')
-app.register_blueprint(mise12random_bp, url_prefix='/mise12random')
 app.register_blueprint(yolov5, url_prefix='/img')
 
 @app.route('/api/random-data')
@@ -164,33 +162,6 @@ def get_request_url1(current_latitude, current_longitude, clicked_latitude, clic
 
 if __name__ == '__main__':
     try:
-        print("Starting Flask server on http://localhost:5000")
-        from src.routes.mise12random import (
-            fetch_air_quality_data,
-            train_model,
-            get_predictions,
-            find_top_7_days,
-            generate_maps
-        )
-
-        air_quality_data, weather_data = fetch_air_quality_data()
-        air_quality_df = pd.DataFrame(air_quality_data)
-        weather_df = pd.DataFrame(weather_data)
-        if not air_quality_df.empty:
-            model, data = train_model(air_quality_df, weather_df)
-            if model and data is not None:
-                predictions_df = get_predictions(model, data)
-                top_7_days = find_top_7_days(predictions_df)
-                print(top_7_days)
-                map_paths = generate_maps(predictions_df.to_dict(orient='records'))
-                print(f"Generated {len(map_paths)} map files:")
-                for path in map_paths:
-                    print(path)
-            else:
-                print("No air quality data fetched.")
-        else:
-            print("No air quality data available.")
-
         app.run(host='localhost', debug=True)
     except Exception as e:
         print("An error occurred:")
