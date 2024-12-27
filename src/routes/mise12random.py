@@ -18,7 +18,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 mise12random_bp = Blueprint('mise12random', __name__)
 
 # 측정소 정보 데이터 로드
-station_info_path = r'D:\\KYB\\Project\\2_WepProject\\3_React\\React_clone_test\\kyb_study\\server\\public\\csv\\station_info.csv'
+station_info_path = r'..\\..\\data\\station_info.csv'
 station_info = pd.read_csv(station_info_path)
 
 # API 호출 설정

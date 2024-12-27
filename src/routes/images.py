@@ -2,11 +2,22 @@ import cx_Oracle
 import base64
 from flask import Blueprint, jsonify
 from sqlalchemy import create_engine, text
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 images_bp = Blueprint('images_bp', __name__)
 
+DB_USER_NAME = os.getenv('DB_USER_NAME')
+DB_USER_PASSWORD = os.getenv('DB_USER_PASSWORD')
+DB_HOST = os.getenv('DB_HOST')
+DB_PORT = os.getenv('DB_PORT')
+DB_NAME = os.getenv('DB_NAME')
+
 # SQLAlchemy 엔진 생성
-engine = create_engine('oracle+cx_oracle://kyb:1111@localhost:1521/xe')
+engine = f'mysql+pymysql://{DB_USER_NAME:{DB_USER_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}}'
+
 
 @images_bp.route('/<int:index>', methods=['GET'])
 def get_image(index):

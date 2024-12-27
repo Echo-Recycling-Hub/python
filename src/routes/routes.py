@@ -5,11 +5,22 @@ from sqlalchemy import create_engine
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from konlpy.tag import Okt
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 recommend_bp = Blueprint('recommend_bp', __name__)
 
-# SQLAlchemy 엔진 생성
-engine = create_engine('oracle+cx_oracle://kyb:1111@localhost:1521/xe')
+
+DB_USER_NAME = os.getenv('DB_USER_NAME')
+DB_USER_PASSWORD = os.getenv('DB_USER_PASSWORD')
+DB_HOST = os.getenv('DB_HOST')
+DB_PORT = os.getenv('DB_PORT')
+DB_NAME = os.getenv('DB_NAME')
+
+# AWS RDB 연결(MariaDB)
+engine = f'mysql+pymysql://{DB_USER_NAME}:{DB_USER_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}'
 
 # 데이터 가져오기
 query_zero = "SELECT id, info, hash_tags, name FROM zero"

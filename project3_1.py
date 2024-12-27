@@ -165,7 +165,7 @@ def get_request_url1(current_latitude, current_longitude, clicked_latitude, clic
 if __name__ == '__main__':
     try:
         print("Starting Flask server on http://localhost:5000")
-        from route.mise12random import (
+        from src.routes.mise12random import (
             fetch_air_quality_data,
             train_model,
             get_predictions,
