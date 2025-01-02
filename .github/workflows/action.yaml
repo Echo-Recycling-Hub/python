@@ -1,4 +1,4 @@
-# Flask 애플리케이션을 위한 CI/CD 파이프라인 구성
+# Flask 애플리케이션을 위한 CI/CD 파이프라인 구성 
 name: Flask CI/CD
 on:
   push:
