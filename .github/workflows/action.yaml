@@ -60,7 +60,7 @@ jobs:
     # main 브렌치에 push 될 때만 실행
     if: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
     env:
-      IMAGE_FULL_NAME: ${{ secrets.ECR_REGISTRY }}/S{{ secrets.ECR_REPOSITORY }}:${{ github.sha }}
+      IMAGE_FULL_NAME: ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:${{ github.sha }}
     steps:
       - name: Checkout code # 코드 체크아웃
         uses: actions/checkout@v4.2.2
@@ -74,7 +74,7 @@ jobs:
 
       - name: Log in to Amazon ECR #ECR 로그인
         run: |
-          aws ecr get-login-password --region ${{ secrets.AWS_REGION }}
+          aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | \
           docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
 
       - name: Build Docker image
@@ -94,7 +94,10 @@ jobs:
       COMMIT_ID: ${{ github.sha }}
     steps:
       - name: Clone the target repository #kustomize 저장소 클론
+        env:
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.EREHUB_TOKEN}}
         run: |
+          git clone https://x-access-token:${PERSONAL_ACCESS_TOKEN}@github.com/Spaces-Place/space-place-helm.git repo
           git config user.name "github-action[bot]"
           git config user.email "github-action[bot]@users.noreply.github.com"
 
@@ -103,11 +106,9 @@ jobs:
           cd repo
           sed -i "s|image:.*|image: ${IMAGE_FULL_NAME}|" ${FILE_PATH}
 
-      - name: Commit and push changes to the target repository # 변경사항 커밋 및푸쉬
-        env: 
-          PERSONAL_ACCESS_TOKEN: ${{ secrets.EREHUB_TOKEN }}
+       - name: Commit and push changes to the target repository # 변경사항 커밋 및푸쉬
         run: |
           cd repo
           git add ${FILE_PATH}
           git commit -m "Update image tag to ${COMMIT_ID}"
-          git push https://x-access-token:${PERSONAL_ACCESS_TOKEN}@github.com/Spaces-Place/space-place-helm.git main
+          git push origin main
