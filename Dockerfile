@@ -29,7 +29,7 @@ COPY ./requirements.txt /code/requirements.txt
 # Python 패키지 설치
 #  --no-cache-dir: pip 캐시를 사용하지 않아 이미지 크기 감소
 #  --upgrade : 최신버전으로 설치
-RUN pip install --no-cache-dir --upgrade -r /code/requirments.txt
+RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 
 # 애플리케이션 시작 스크립트를 복사하고 실행 권한을 부여
 COPY ./entry_point.sh /code/entry_point.sh
