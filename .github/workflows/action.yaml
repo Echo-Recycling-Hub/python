@@ -55,15 +55,15 @@ jobs:
           
   # Docker 이미지 빌드 및 푸쉬 작업
   build_and_push:
-    namd: Build and Push Docker Image
+    name: Build and Push Docker Image
     runs-on: ubuntu-latest
     # main 브렌치에 push 될 때만 실행
-    if: ${{ github.evnet_name == 'push' && github.ref_name == 'main' }}
+    if: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
     env:
-      IMGAE_FULL_NAME: ${{ secrets.ECR_REGISTRY }}/S{{ secrets.ECR_REPOSITORY }}:${{ github.sha }}
+      IMAGE_FULL_NAME: ${{ secrets.ECR_REGISTRY }}/S{{ secrets.ECR_REPOSITORY }}:${{ github.sha }}
     steps:
       - name: Checkout code # 코드 체크아웃
-        uses: actions/checkout@4.2.2
+        uses: actions/checkout@v4.2.2
 
       - name: Configure AWS credentials #AWS 인증설정
         uses: aws-actions/configure-aws-credentials@v4
@@ -74,16 +74,16 @@ jobs:
 
       - name: Log in to Amazon ECR #ECR 로그인
         run: |
-        aws ecr get-login-password --region ${{ secrets.AWS_REGION }}
-        docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
+          aws ecr get-login-password --region ${{ secrets.AWS_REGION }}
+          docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
 
       - name: Build Docker image
         run: |
-          docker build -t ${IMAGE_FULL_NAME}
+          docker build -t ${IMAGE_FULL_NAME} .
 
       - name: Push Docker image to Amazon ECR # ECR에 이미지 푸시
         run: |
-        docker push ${IMAGE_FULL_NAME}
+          docker push ${IMAGE_FULL_NAME}
 
   update_kustomize_repository:
     runs-on: ubuntu-latest
