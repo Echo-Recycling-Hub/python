@@ -24,7 +24,7 @@ WORKDIR /code
 
 #  requirments.txt 파일만 먼저 복사
 #  이렇게 해두면 requierments 만 변경되었을때만 pip install 을 실행
-COPY ./reuierments.txt /code/reuierments.txt
+COPY ./requirements.txt /code/requirements.txt
 
 # Python 패키지 설치
 #  --no-cache-dir: pip 캐시를 사용하지 않아 이미지 크기 감소
