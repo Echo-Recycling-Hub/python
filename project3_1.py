@@ -162,7 +162,7 @@ def get_request_url1(current_latitude, current_longitude, clicked_latitude, clic
 
 if __name__ == '__main__':
     try:
-        app.run(host='localhost', debug=True)
+        app.run(host='0.0.0.0', port=80, debug=True)
     except Exception as e:
         print("An error occurred:")
         print(str(e))

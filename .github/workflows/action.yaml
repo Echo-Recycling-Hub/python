@@ -1,0 +1,113 @@
+# Flask 애플리케이션을 위한 CI/CD 파이프라인 구성
+name: Flask CI/CD
+on:
+  push:
+    branches:
+      - main # main 브렌치에 push 될때
+  pull_request:
+    types:
+      - opened  # PR이 열려있을때만 실행
+    branches:
+      - main   # main 브렌치로의 PR
+
+# 환경변수 설정
+env:
+  PYTHON_VERSION: 3.12.7 # 사용할 파이썬 버전
+  LINTING_TARGET_VERSION: py312  # black 포맷터의 타겟 파이썬 버전
+
+jobs:
+  # 코드 린팅 작업
+  lint:
+  # feature/* 브랜치에서 시작하고, 이미 린트되지 않은 pR에 대해서만 실행
+    if: ${{ startsWith(github.head_ref, 'feature') && !endsWith(github.head_ref, 'linted') && github.event_name == 'pull_request'}}
+    name: Lint Code
+    runs-on: ubuntu-latest
+    steps:
+      - name: Chekout code  # 코드 체크아웃
+        uses: actions/checkout@v4.2.2
+
+      - name: Set up Python environment # 파이썬 환경 설정
+        uses: actions/setup-python@v5.3.0
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: Install dependencies # black 린터 설치
+        run: |
+          python -m pip install --upgrade pip
+          pip install black
+
+      - name: Run black and auto-correct code  # 코드 자동화 포멧팅
+        run: black . --target-version $LINTING_TARGET_VERSION
+
+      - name: Push to lint branch # 포멧팅된 코드를 새브랜치에 푸쉬
+        id: check_diff
+        env:
+          BRANCH_NAME: ${{ github.head_ref }}-${{ github.run_id }}-linted
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          if [[ $(git status --porcelain) ]]; then
+            git checkout -b ${BRANCH_NAME}
+            git add ./
+            git commit -m "[Linted] Code is Linted"
+            git push -u origin ${BRANCH_NAME}
+          fi
+          
+  # Docker 이미지 빌드 및 푸쉬 작업
+  build_and_push:
+    namd: Build and Push Docker Image
+    runs-on: ubuntu-latest
+    # main 브렌치에 push 될 때만 실행
+    if: ${{ github.evnet_name == 'push' && github.ref_name == 'main' }}
+    env:
+      IMGAE_FULL_NAME: ${{ secrets.ECR_REGISTRY }}/S{{ secrets.ECR_REPOSITORY }}:${{ github.sha }}
+    steps:
+      - name: Checkout code # 코드 체크아웃
+        uses: actions/checkout@4.2.2
+
+      - name: Configure AWS credentials #AWS 인증설정
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Log in to Amazon ECR #ECR 로그인
+        run: |
+        aws ecr get-login-password --region ${{ secrets.AWS_REGION }}
+        docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
+
+      - name: Build Docker image
+        run: |
+          docker build -t ${IMAGE_FULL_NAME}
+
+      - name: Push Docker image to Amazon ECR # ECR에 이미지 푸시
+        run: |
+        docker push ${IMAGE_FULL_NAME}
+
+  update_kustomize_repository:
+    runs-on: ubuntu-latest
+    needs: build_and_push #build_and_push 작업이성공한 후에 실행
+    env:
+      FILE_PATH: Echo-Recycling-Hub/${{ github.ref_name }}/deployment.yaml #업데이트 파일 경로
+      IMAGE_FULL_NAME: ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:${{ github.sha }}
+      COMMIT_ID: ${{ github.sha }}
+    steps:
+      - name: Clone the target repository #kustomize 저장소 클론
+        run: |
+          git config user.name "github-action[bot]"
+          git config user.email "github-action[bot]@users.noreply.github.com"
+
+      - name: Update image tag in deplyment.yaml #deployment.yaml의 이미지 태그 업데이트
+        run: |
+          cd repo
+          sed -i "s|image:.*|image: ${IMAGE_FULL_NAME}|" ${FILE_PATH}
+
+      - name: Commit and push changes to the target repository # 변경사항 커밋 및푸쉬
+        env: 
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.EREHUB_TOKEN }}
+        run: |
+          cd repo
+          git add ${FILE_PATH}
+          git commit -m "Update image tag to ${COMMIT_ID}"
+          git push https://x-access-token:${PERSONAL_ACCESS_TOKEN}@github.com/Spaces-Place/space-place-helm.git main
