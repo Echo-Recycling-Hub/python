@@ -89,7 +89,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build_and_push  #build_and_push 작업이성공한 후에 실행
     env:
-      FILE_PATH: Echo-Recycling-Hub/${{ github.ref_name }}/deployment.yaml #업데이트 파일 경로
+      FILE_PATH: Echo-Recycling-Hub/python/deployment.yaml #업데이트 파일 경로
       IMAGE_FULL_NAME: ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:${{ github.sha }}
       COMMIT_ID: ${{ github.sha }}
     steps:
@@ -97,7 +97,7 @@ jobs:
         env:
           PERSONAL_ACCESS_TOKEN: ${{ secrets.EREHUB_TOKEN }}
         run: |
-          git clone https://x-access-token:${PERSONAL_ACCESS_TOKEN}@github.com/Spaces-Place/space-place-helm.git repo
+          git clone https://x-access-token:${PERSONAL_ACCESS_TOKEN}@github.com/Echo-Recycling-Hub/k8s-manifests.git repo
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
