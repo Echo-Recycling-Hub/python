@@ -89,7 +89,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build_and_push  #build_and_push 작업이성공한 후에 실행
     env:
-      FILE_PATH: python/deployment.yaml #업데이트 파일 경로
+      FILE_PATH: python/main/deployment.yaml #업데이트 파일 경로
       IMAGE_FULL_NAME: ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:${{ github.sha }}
       COMMIT_ID: ${{ github.sha }}
     steps:
